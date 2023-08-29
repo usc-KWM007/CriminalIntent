@@ -1,8 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id 'org.jetbrains.kotlin.kapt'
     id 'androidx.navigation.safeargs'
+    id 'org.jetbrains.kotlin.kapt'
 }
 
 android {
@@ -64,6 +64,7 @@ dependencies {
     implementation 'androidx.room:room-runtime:2.4.2'
     implementation 'androidx.room:room-ktx:2.4.2'
     kapt 'androidx.room:room-compiler:2.4.2'
+    kapt 'org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.5.0' //Fix for 449 Chapter 13
     implementation "androidx.navigation:navigation-fragment-ktx:2.4.1"
     implementation "androidx.navigation:navigation-ui-ktx:2.5.0"
     testImplementation 'junit:junit:4.13.2'
