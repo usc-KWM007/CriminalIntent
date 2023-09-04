@@ -12,8 +12,8 @@ interface CrimeDao {
     @Query("SELECT * FROM crime")
     fun getCrimes(): Flow<List<Crime>>
     @Query("SELECT * FROM crime WHERE id=(:id)")
-    suspend fun getCrime(id: UUID): Crime
+    fun getCrime(id: UUID): Flow<Crime>
     @Update
-    suspend fun updateCrime(crime: Crime)
+    fun updateCrime(crime: Crime)
 
 }

@@ -12,15 +12,17 @@ import java.util.UUID
 
 class CrimeDetailViewModel(crimeId: UUID) : ViewModel() {
     private val crimeRepository = CrimeRepository.get()
-    private val _crime: MutableStateFlow<Crime?> = MutableStateFlow(null)
+    private val _crime: MutableStateFlow<Crime?> =
+        MutableStateFlow(null)
     val crime: StateFlow<Crime?> = _crime.asStateFlow()
 
     init {
         viewModelScope.launch {
-            _crime.value = crimeRepository.getCrime(crimeId)
+            crimeRepository.getCrime(crimeId).collect {
+                _crime.value = it
+            }
         }
     }
-
     fun updateCrime(onUpdate: (Crime) -> Crime) {
         _crime.update { oldCrime ->
             oldCrime?.let { onUpdate(it) }

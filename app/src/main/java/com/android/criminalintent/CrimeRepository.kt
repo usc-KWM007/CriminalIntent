@@ -23,14 +23,12 @@ class CrimeRepository private constructor(context: Context, private val coroutin
         .build()
 
     fun getCrimes(): Flow<List<Crime>> = database.crimeDao().getCrimes()
-    suspend fun getCrime(id: UUID): Crime = database.crimeDao().getCrime(id)
-
+    fun getCrime(id: UUID): Flow<Crime> = database.crimeDao().getCrime(id)
     fun updateCrime(crime: Crime) {
         coroutineScope.launch {
             database.crimeDao().updateCrime(crime)
         }
     }
-
 
 
     companion object {
