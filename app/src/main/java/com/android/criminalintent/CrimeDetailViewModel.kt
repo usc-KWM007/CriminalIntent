@@ -23,6 +23,11 @@ class CrimeDetailViewModel(crimeId: UUID) : ViewModel() {
             }
         }
     }
+
+    fun removeCrime(crime: Crime) {
+        crimeRepository.removeCrime(crime)
+    }
+
     fun updateCrime(onUpdate: (Crime) -> Crime) {
         _crime.update { oldCrime ->
             oldCrime?.let { onUpdate(it) }

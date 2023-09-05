@@ -2,6 +2,9 @@ package com.android.criminalintent
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
@@ -32,6 +35,12 @@ class CrimeDetailFragment : Fragment() {
         CrimeDetailViewModelFactory(args.crimeId)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -40,6 +49,11 @@ class CrimeDetailFragment : Fragment() {
         _binding =
             FragmentCrimeDetailBinding.inflate(layoutInflater, container, false)
         return binding.root
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_crime_detail, menu)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -96,6 +110,30 @@ class CrimeDetailFragment : Fragment() {
             crimeSolved.isChecked = crime.isSolved
         }
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.remove_crime -> {
+
+                removeCrime()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+    private fun removeCrime() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            crimeDetailViewModel.crime.collect { crime ->
+                crime.let { if (crime != null) {
+                    crimeDetailViewModel.removeCrime(crime)
+                }
+                }
+
+            }
+
+        }
+    }
+
 
 
 }

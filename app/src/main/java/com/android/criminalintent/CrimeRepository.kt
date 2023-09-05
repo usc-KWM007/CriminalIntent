@@ -29,9 +29,16 @@ class CrimeRepository private constructor(context: Context, private val coroutin
         }
     }
 
+
     fun addCrime(crime: Crime) {
         coroutineScope.launch {
             database.crimeDao().addCrime(crime)
+        }
+    }
+
+    fun removeCrime(crime: Crime) {
+        coroutineScope.launch {
+            database.crimeDao().removeCrime(crime)
         }
     }
 
