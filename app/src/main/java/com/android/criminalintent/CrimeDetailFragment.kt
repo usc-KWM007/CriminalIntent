@@ -15,6 +15,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
+import androidx.core.view.doOnLayout
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
@@ -26,6 +28,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.android.criminalintent.databinding.FragmentCrimeDetailBinding
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.Date
 
 class CrimeDetailFragment : Fragment() {
@@ -48,6 +51,18 @@ class CrimeDetailFragment : Fragment() {
     ) { uri: Uri? ->
         uri?.let { parseContactSelection(it) }
     }
+
+    private val takePhoto = registerForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { didTakePhoto: Boolean ->
+        if (didTakePhoto && photoName != null) {
+            crimeDetailViewModel.updateCrime { oldCrime ->
+                oldCrime.copy(photoFileName = photoName)
+            }
+        }
+    }
+    private var photoName: String? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,6 +109,25 @@ class CrimeDetailFragment : Fragment() {
                 null
             )
             crimeSuspect.isEnabled = canResolveIntent(selectSuspectIntent)
+
+            crimeCamera.setOnClickListener {
+                photoName = "IMG_${Date()}.JPG"
+                val photoFile = File(requireContext().applicationContext.filesDir,
+                    photoName)
+                val photoUri = FileProvider.getUriForFile(
+                    requireContext(),
+                    "com.android.criminalintent.fileprovider",
+                    photoFile
+                )
+                takePhoto.launch(photoUri)
+            }
+
+            val captureImageIntent = takePhoto.contract.createIntent(
+                requireContext(),
+                Uri.parse(""), //fix for chapter 17
+            )
+            crimeCamera.isEnabled = canResolveIntent(captureImageIntent)
+
 
         }
         viewLifecycleOwner.lifecycleScope.launch {
@@ -153,6 +187,8 @@ class CrimeDetailFragment : Fragment() {
                 getString(R.string.crime_suspect_text)
             }
 
+            updatePhoto(crime.photoFileName)
+
         }
     }
 
@@ -197,6 +233,29 @@ class CrimeDetailFragment : Fragment() {
             )
         return resolvedActivity != null
     }
+
+    private fun updatePhoto(photoFileName: String?) {
+        if (binding.crimePhoto.tag != photoFileName) {
+            val photoFile = photoFileName?.let {
+                File(requireContext().applicationContext.filesDir, it)
+            }
+            if (photoFile?.exists() == true) {
+                binding.crimePhoto.doOnLayout { measuredView ->
+                    val scaledBitmap = getScaledBitmap(
+                        photoFile.path,
+                        measuredView.width,
+                        measuredView.height
+                    )
+                    binding.crimePhoto.setImageBitmap(scaledBitmap)
+                    binding.crimePhoto.tag = photoFileName
+                }
+            } else {
+                binding.crimePhoto.setImageBitmap(null)
+                binding.crimePhoto.tag = null
+            }
+        }
+    }
+
 
 
 
